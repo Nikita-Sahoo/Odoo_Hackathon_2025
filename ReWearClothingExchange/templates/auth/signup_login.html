@@ -1,0 +1,107 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title></title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'my_css/styles.css' %}" />
+</head>
+
+<body>
+    <div id="shadow" class="fixed top-0 left-0 z-1 h-32 w-32 rounded-full transition-opacity duration-300 opacity-0">
+    </div>
+    <div class="radius-xl relative z-1 flex h-screen w-full flex-col overflow-auto p-5 sm:p-10">
+        <div id="card"
+            class="relative mx-auto my-auto w-full max-w-110 shrink-0 overflow-hidden rounded-4xl border-t border-white/20 bg-gradient-to-t from-zinc-100/10 to-zinc-950/50 to-50% p-8 text-white shadow-2xl shadow-black outline -outline-offset-1 outline-white/5 backdrop-blur-2xl">
+            <div class="relative mb-6">
+                <div class="flex bg-zinc-700 rounded-full overflow-hidden relative text-sm font-medium">
+                    <!-- Sliding indicator -->
+                    <div id="toggle-indicator"
+                        class="absolute top-0 left-0 h-full w-1/2 bg-zinc-900 rounded-full transition-transform duration-300 z-0">
+                    </div>
+
+                    <!-- Tabs -->
+                    <div id="tab-signup" class="w-1/2 text-center py-2 z-10 cursor-pointer text-white">
+                        Sign Up
+                    </div>
+                    <div id="tab-signin" class="w-1/2 text-center py-2 z-10 cursor-pointer text-zinc-400">
+                        Sign In
+                    </div>
+                </div>
+            </div>
+            {% comment %} <h2 class="mb-7 text-[1.4rem] font-medium">Create an account</h2> {% endcomment %}
+
+           <div id="form-signup">
+        <h2 class="text-xl font-semibold mb-4">Create an Account</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="signup">
+            <input type="text" placeholder="Email" style="border-radius: 12px;" name="email" class="w-full p-3 mb-3 rounded bg-zinc-700 placeholder:text-white/60">
+            <input type="password" placeholder="Password" style="border-radius: 12px;" name="pass" class="w-full p-3 mb-4 rounded bg-zinc-700 placeholder:text-white/60">
+            <input type="c_password" placeholder="Conform Password" style="border-radius: 12px;" name="c_pass" class="w-full p-3 mb-3 rounded bg-zinc-700 placeholder:text-white/60">
+
+            <button type="submit" style="margin-top: 30px;" class="w-full py-2 bg-white text-zinc-900 font-semibold rounded hover:bg-gray-300 transition">
+                Sign Up
+            </button>
+        </form>
+    </div>
+
+    <div id="form-signin" class="hidden">
+        <h2 class="text-xl font-semibold mb-4">Sign In to Your Account</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="login">
+
+            <input type="text" placeholder="Email" style="border-radius: 12px;" name="email" class="w-full p-3 mb-3 rounded bg-zinc-700 placeholder:text-white/60">
+            <input type="password" placeholder="Password" style="border-radius: 12px;" name="pass" class="w-full p-3 mb-4 rounded bg-zinc-700 placeholder:text-white/60">
+            <button type="submit" style="margin-top: 30px;" class="w-full py-2 bg-white text-zinc-900 font-semibold rounded hover:bg-gray-300 transition">
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript to toggle tabs -->
+<script>
+    const tabSignup = document.getElementById("tab-signup");
+    const tabSignin = document.getElementById("tab-signin");
+    const formSignup = document.getElementById("form-signup");
+    const formSignin = document.getElementById("form-signin");
+    const toggleIndicator = document.getElementById("toggle-indicator");
+
+    tabSignup.addEventListener("click", () => {
+        formSignup.classList.remove("hidden");
+        formSignin.classList.add("hidden");
+
+        tabSignup.classList.add("text-white");
+        tabSignup.classList.remove("text-zinc-400");
+
+        tabSignin.classList.remove("text-white");
+        tabSignin.classList.add("text-zinc-400");
+
+        toggleIndicator.style.transform = "translateX(0%)";
+    });
+
+    tabSignin.addEventListener("click", () => {
+        formSignin.classList.remove("hidden");
+        formSignup.classList.add("hidden");
+
+        tabSignin.classList.add("text-white");
+        tabSignin.classList.remove("text-zinc-400");
+
+        tabSignup.classList.remove("text-white");
+        tabSignup.classList.add("text-zinc-400");
+
+        toggleIndicator.style.transform = "translateX(100%)";
+    });
+</script>
+
+</body>
+
+</html>
