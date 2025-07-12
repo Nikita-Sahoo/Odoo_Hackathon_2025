@@ -5,6 +5,9 @@ from django.contrib import messages
 from .models import Login, UserDetails, Item
 from django.contrib.auth import logout as django_logout
 from django.shortcuts import redirect
+from .form import UserDetailsForm 
+from .item_form import ItemForm
+
 
 
 
@@ -45,27 +48,48 @@ def home(request):
     if not email:
         return redirect('login')
     
-    try:
-        user = Login.objects.get(email=email)
-    except Login.DoesNotExist:
-        return redirect('signup_login')
-    try:
-        details = UserDetails.objects.get(user=user)  # get UserDetails linked to this user
-    except UserDetails.DoesNotExist:
-        details = None
+#     try:
+#         user = Login.objects.get(email=email)
+#     except Login.DoesNotExist:
+#         return redirect('signup_login')
+#     try:
+#         details = UserDetails.objects.filter(user=user).first()
+#   # get UserDetails linked to this user
+#     except UserDetails.DoesNotExist:
+#         details = None
 
-    items = user.items.all() if hasattr(user, 'items') else []
+#     items = user.items.all() if hasattr(user, 'items') else []
 
-    context = {
-        'user': user,
-        'details': details,
-        'items': items,
-    }  # or your login URL name
+#     context = {
+#         'user': user,
+#         'details': details,
+#         'items': items,
+#     }  # or your login URL name
     return render(request, 'home.html', {'email': email})
 
 
-def items(request):
-    return HttpResponse("This is Home page")
+def addItems(request):
+    user_email = request.session.get('user_email')
+    if not user_email:
+        return redirect('signup_login')
+
+    try:
+        user = Login.objects.get(email=user_email)
+    except Login.DoesNotExist:
+        return redirect('signup_login')
+
+    if request.method == 'POST':
+        form = ItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.user = user  # Link to logged-in user
+            item.save()
+            return redirect('dashboard')
+    else:
+        form = ItemForm()
+
+    return render(request, 'add_item.html', {'form': form, 'user_email': user_email})
+
 
 def itemDetails(request, itemId):
     return HttpResponse(itemId)
@@ -81,12 +105,10 @@ def dashboard(request):
     except Login.DoesNotExist:
         return redirect('signup_login')
 
-    try:
-        details = UserDetails.objects.get(user=user)  # get UserDetails linked to this user
-    except UserDetails.DoesNotExist:
-        details = None
+    details = UserDetails.objects.filter(user=user).last()
 
-    items = user.items.all() if hasattr(user, 'items') else []
+    # ✅ Get only items created by this user
+    items = Item.objects.filter(user=user)
 
     context = {
         'user': user,
@@ -94,6 +116,29 @@ def dashboard(request):
         'items': items,
     }
     return render(request, 'dashboard.html', context)
+
+
+def add_user_info(request):
+    user_email = request.session.get('user_email')
+    if not user_email:
+        return redirect('signup_login')
+
+    try:
+        user = Login.objects.get(email=user_email)
+    except Login.DoesNotExist:
+        return redirect('signup_login')
+
+    if request.method == 'POST':
+        form = UserDetailsForm(request.POST, request.FILES)
+        if form.is_valid():
+            details = form.save(commit=False)
+            details.user = user
+            details.save()
+            return redirect('dashboard')
+    else:
+        form = UserDetailsForm()
+
+    return render(request, 'add_user.html', {'form': form})
 
 
 def logout(request):
