@@ -2,7 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Login
+from .models import Login, UserDetails, Item
 
 
 def combined_view(request):
@@ -54,17 +54,23 @@ def itemDetails(request, itemId):
 def dashboard(request):
     user_email = request.session.get('user_email')
     if not user_email:
-        return redirect('auth/signup_login.html')  # Redirect if not logged in
+        return redirect('signup_login')
 
     try:
         user = Login.objects.get(email=user_email)
     except Login.DoesNotExist:
-        return redirect('auth/signup_login.html')
+        return redirect('signup_login')
 
-    user_items = user.items.all()  # all items uploaded by user
+    try:
+        details = UserDetails.objects.get(user=user)  # get UserDetails linked to this user
+    except UserDetails.DoesNotExist:
+        details = None
+
+    items = user.items.all() if hasattr(user, 'items') else []
 
     context = {
         'user': user,
-        'items': user_items,
+        'details': details,
+        'items': items,
     }
     return render(request, 'dashboard.html', context)

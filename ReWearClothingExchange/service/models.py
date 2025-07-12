@@ -46,6 +46,9 @@ class Item(models.Model):
 
 
 class UserDetails(models.Model):
+
+    user = models.ForeignKey(Login, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100)
     contact = models.CharField(max_length=15)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+
