@@ -59,7 +59,7 @@
       <h4>Your Uploaded Items</h4>
       <span class="text-muted">{{ items.count }} item{{ items.count|pluralize }}</span>
     </div>
-  {% for item in items %}
+  {% comment %} {% for item /in items %} {% endcomment %}
     {% if items %}
       <div class="row g-4">
         {% for item in items %}
@@ -85,7 +85,7 @@
   
       <p class="text-muted">You haven’t uploaded any items yet.</p>
     {% endif %}
-  {% endfor %}
+  {% comment %} {% endfor %} {% endcomment %}
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
