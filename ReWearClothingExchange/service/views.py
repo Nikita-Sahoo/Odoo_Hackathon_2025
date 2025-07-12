@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Login, UserDetails, Item
+from django.contrib.auth import logout as django_logout
+from django.shortcuts import redirect
+
 
 
 def combined_view(request):
@@ -40,7 +43,24 @@ def combined_view(request):
 def home(request):
     email = request.session.get('user_email')
     if not email:
-        return redirect('login')  # or your login URL name
+        return redirect('login')
+    
+    try:
+        user = Login.objects.get(email=email)
+    except Login.DoesNotExist:
+        return redirect('signup_login')
+    try:
+        details = UserDetails.objects.get(user=user)  # get UserDetails linked to this user
+    except UserDetails.DoesNotExist:
+        details = None
+
+    items = user.items.all() if hasattr(user, 'items') else []
+
+    context = {
+        'user': user,
+        'details': details,
+        'items': items,
+    }  # or your login URL name
     return render(request, 'home.html', {'email': email})
 
 
@@ -74,3 +94,8 @@ def dashboard(request):
         'items': items,
     }
     return render(request, 'dashboard.html', context)
+
+
+def logout(request):
+    request.session.flush()  
+    return redirect('signup_login')
